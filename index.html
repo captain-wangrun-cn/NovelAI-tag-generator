@@ -1345,6 +1345,7 @@ QQ交流群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=9mVueIK
     }
 
     const { createApp } = Vue
+    const RANDOM_PICK_CONFIG_KEY = 'NOVELAI_TAG_RANDOM_PICK_CONFIG'
     const defaultPickConfig = {
         '常用': 0,
         'R18': 0,
@@ -1381,6 +1382,8 @@ QQ交流群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=9mVueIK
                 }
 
                 vm.pickResult = vm.isRandomSort ? getRandomArrayItems(pickResult, pickResult.length) : pickResult
+
+                localStorage.setItem(RANDOM_PICK_CONFIG_KEY, JSON.stringify(vm.pickConfig))
             },
             copyResult () {
                 let tagEnglishArray = this.pickResult.map(item => item.english)
@@ -1407,6 +1410,11 @@ QQ交流群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=9mVueIK
 
                 vm.pickConfig = pickConfig
             })
+
+            let localConfig = localStorage.getItem(RANDOM_PICK_CONFIG_KEY)
+            if (localConfig) {
+                vm.pickConfig = JSON.parse(localConfig)
+            }
         }
     }).mount('#random-pick')
 }
