@@ -1303,12 +1303,19 @@ QQ交流群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=9mVueIK
                 <button v-if="pickResult.length > 0" @click="copyResult" class="layui-btn">复制结果</button>
             </div>
         </div>
+        <div class="layui-row">
+            <div class="layui-col-md4">
+                <input type="checkbox" v-model="isRandomSort"> 随机排序
+            </div>
+        </div>
     </div>
 
     <div class="layui-row">
-        <div class="tagtext" style="padding: 5px; float: left; margin-left: 10px; margin-bottom: 10px;" v-for="tag in pickResult">
-            <span class="english">{{ tag.english }}</span>
-            <span class="chinese">{{ tag.chinese }}</span>
+        <div class="layui-col-md12">
+            <div class="tagtext" style="padding: 5px; float: left; margin-left: 10px; margin-bottom: 10px;" v-for="tag in pickResult">
+                <span class="english">{{ tag.english }}</span>
+                <span class="chinese">{{ tag.chinese }}</span>
+            </div>
         </div>
     </div>
 
@@ -1349,7 +1356,8 @@ QQ交流群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=9mVueIK
         data () {
             return {
                 pickConfig: {},
-                pickResult: []
+                pickResult: [],
+                isRandomSort: true
             }
         },
         methods: {
@@ -1372,7 +1380,7 @@ QQ交流群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=9mVueIK
                     }
                 }
 
-                vm.pickResult = pickResult
+                vm.pickResult = vm.isRandomSort ? getRandomArrayItems(pickResult, pickResult.length) : pickResult
             },
             copyResult () {
                 let tagEnglishArray = this.pickResult.map(item => item.english)
