@@ -1286,11 +1286,123 @@ QQ交流群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=9mVueIK
 </div>
 </div>
 
+<div id="random-pick">
+    <h2>随机选择</h2>
+    <hr>
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-md2"  v-for="(num, title) in pickConfig">
+            {{ title }}
+            <input type="number" placeholder="提取数量"  class="layui-input" v-model="pickConfig[title]">
+        </div>
+    </div>
 
+    <div>
+        <div class="layui-row layui-col-space10">
+            <div class="layui-col-md4">
+                <button @click="pick" class="layui-btn layui-btn-normal">随机生成</button>
+                <button v-if="pickResult.length > 0" @click="copyResult" class="layui-btn">复制结果</button>
+            </div>
+        </div>
+    </div>
 
+    <div class="layui-row">
+        <div class="tagtext" style="padding: 5px; float: left; margin-left: 10px; margin-bottom: 10px;" v-for="tag in pickResult">
+            <span class="english">{{ tag.english }}</span>
+            <span class="chinese">{{ tag.chinese }}</span>
+        </div>
+    </div>
 
+</div>
 
+<script src="./index_files/vue.global.prod@3.2.45.js"></script>
+<script>
+{
+    function getRandomInt (min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min
+    }
 
+    function getRandomArrayItems (srcArray, count) {
+        let arr = [...srcArray]
+        let endIndex = arr.length - 1
+
+        for (let beginIndex = 0; beginIndex < count; beginIndex++) {
+            let randomIndex = getRandomInt(beginIndex, endIndex)
+            let randomValue = arr[randomIndex]
+            let beginValue = arr[beginIndex]
+            
+            arr[beginIndex] = randomValue
+            arr[randomIndex] = beginValue
+        }
+
+        return arr.slice(0, count)
+    }
+
+    const { createApp } = Vue
+    const defaultPickConfig = {
+        '常用': 0,
+        'R18': 0,
+        '服装': 2
+    }
+    let tagData = []
+
+    createApp({
+        data () {
+            return {
+                pickConfig: {},
+                pickResult: []
+            }
+        },
+        methods: {
+            pick () {
+                let vm = this
+                let pickResult = []
+
+                for (let groupName in vm.pickConfig) {
+                    let group = tagData.find(item => item.title === groupName)
+                    let count = vm.pickConfig[groupName]
+
+                    let mergedTags = []
+                    for (let child of group.children) {
+                        mergedTags = [...mergedTags, ...child.tags]
+                    }
+
+                    if (count > 0) {
+                        let randomTags = getRandomArrayItems(mergedTags, count)
+                        pickResult = [...pickResult, ...randomTags]
+                    }
+                }
+
+                vm.pickResult = pickResult
+            },
+            copyResult () {
+                let tagEnglishArray = this.pickResult.map(item => item.english)
+                let resultText = tagEnglishArray.join(', ')
+                navigator.clipboard.writeText(resultText)
+                toast("复制成功！" + resultText, "success","2000");
+            }
+        },
+        created () {
+            const vm = window.randomPick = this
+
+            $.get('./tag-data.json', data => {
+                let pickConfig = {}
+                tagData = data
+
+                for (let group of data) {
+                    pickConfig[group.title] = 1
+                }
+
+                pickConfig = {
+                    ...pickConfig,
+                    ...defaultPickConfig
+                }
+
+                vm.pickConfig = pickConfig
+            })
+        }
+    }).mount('#random-pick')
+}
+</script>
 
 </div>
 <br><br><br>
@@ -1833,5 +1945,51 @@ $(function() {
 </script>
 <script src="./index_files/index.js" charset="utf-8"></script>
 <script type="text/javascript" src="./index_files/drag-arrange.js"></script>
+
+<script>
+    function getStructuredData () {
+        var doc = document
+        var titleItems = doc.querySelectorAll('.layui-tab-title li')
+        var titles = [...titleItems].map(item => {
+            return {
+                title: item.textContent,
+                children: []
+            }
+        })
+
+        var content = doc.querySelector('.layui-tab-content')
+        var tabItems = content.querySelectorAll('.layui-tab-item')
+
+        for (let i = 0; i < tabItems.length; i++) {
+            var tabItem = tabItems[i]
+            var formItems = tabItem.querySelectorAll('.layui-form')
+
+            var pText = [...tabItem.querySelectorAll('p')].map(item => item.textContent)
+
+            if (formItems.length > pText.length) {
+                pText.unshift(null)
+            }
+
+            for (let j = 0; j < formItems.length; j++) {
+                var formItem = formItems[j]
+                var tagbuttons = formItem.querySelectorAll('.tagbutton')
+                var tags = [...tagbuttons].map(tagbutton => {
+                    return {
+                        english: tagbutton.querySelector('.english').textContent,
+                        chinese: tagbutton.querySelector('.chinese').textContent.replace('\n', '')
+                    }
+                })
+
+                titles[i].children.push({
+                    title: pText[j],
+                    tags: tags
+                })
+            }
+        }
+
+        return titles
+    }
+
+</script>
 
 <div class="mpa-sc mpa-plugin-article-gatherer mpa-new mpa-rootsc" data-z="100" style="display: block;" id="mpa-rootsc-article-gatherer"></div><div class="mpa-sc mpa-plugin-image-gatherer mpa-new mpa-rootsc" data-z="100" style="display: block;" id="mpa-rootsc-image-gatherer"></div><div class="mpa-sc mpa-plugin-page-clipper mpa-new mpa-rootsc" data-z="100" style="display: block;" id="mpa-rootsc-page-clipper"></div><div class="mpa-sc mpa-plugin-text-gatherer mpa-new mpa-rootsc" data-z="100" style="display: block;" id="mpa-rootsc-text-gatherer"></div><div class="mpa-sc mpa-plugin-video-gatherer mpa-new mpa-rootsc" data-z="100" style="display: block;" id="mpa-rootsc-video-gatherer"></div><div class="mpa-sc mpa-plugin-side-function-panel mpa-new mpa-rootsc" data-z="110" style="display: block;" id="mpa-rootsc-side-function-panel"></div><div class="mpa-sc mpa-plugin-notifier mpa-new mpa-rootsc" data-z="120" style="display: block;" id="mpa-rootsc-notifier"></div><div class="mpa-sc mpa-plugin-notification-manager mpa-new mpa-rootsc" data-z="130" style="display: block;" id="mpa-rootsc-notification-manager"></div></body></html>
