@@ -1409,12 +1409,12 @@ QQ交流群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=9mVueIK
                 }
 
                 vm.pickConfig = pickConfig
-            })
 
-            let localConfig = localStorage.getItem(RANDOM_PICK_CONFIG_KEY)
-            if (localConfig) {
-                vm.pickConfig = JSON.parse(localConfig)
-            }
+                let localConfig = localStorage.getItem(RANDOM_PICK_CONFIG_KEY)
+                if (localConfig) {
+                    vm.pickConfig = {...vm.pickConfig, ...JSON.parse(localConfig)}
+                }
+            })
         }
     }).mount('#random-pick')
 }
